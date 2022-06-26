@@ -1,4 +1,5 @@
 import 'package:counter_bloc/blocs/counter/counter_bloc.dart';
+import 'package:counter_bloc/blocs/theme/theme_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
@@ -13,9 +14,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => CounterBloc(),
-      child: const MaterialApp(
-        title: 'My Counter Cubit',
-        home: HomePage(),
+      child: BlocProvider<ThemeBloc>(
+        create: (context) => ThemeBloc(),
+        child: BlocBuilder<ThemeBloc, ThemeState>(
+          builder: (context, state) {
+            return MaterialApp(
+              title: 'My Counter Cubit',
+              theme: state.appTheme == AppTheme.light
+                  ? ThemeData.light()
+                  : ThemeData.dark(),
+              home: const HomePage(),
+            );
+          },
+        ),
       ),
     );
   }
@@ -36,6 +47,7 @@ class HomePage extends StatelessWidget {
             final int random = Random().nextInt(10);
             // ignore: avoid_print
             print("Random intiger is : $random");
+            context.read<ThemeBloc>().add(ChangeThemeEvent(random));
           },
           child: const Text(
             "Change Theme",
